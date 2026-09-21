@@ -1,55 +1,48 @@
 # Distribución FisioActiv
 
-## Publicar en Render.com (enlace público)
+## Publicar en Render.com (auto-deploy con cada push a master)
 
-Tu cuenta de GitHub de empresa **no permite crear repos** desde aquí. Para Render necesitas un repo Git (puede ser **privado**) en una cuenta personal de GitHub o GitLab.
+Repo: https://github.com/fernandozavaletahenriquez/fisioactiv
 
-### Paso A — Subir el código a GitHub (cuenta personal)
+### Configuración una sola vez
 
-1. Entra a [https://github.com/new](https://github.com/new) con una cuenta **personal** (no la de Belcorp si está bloqueada).
-2. Crea el repo `fisioactiv` (privado o público).
-3. En PowerShell:
-
-```powershell
-cd c:\Users\Tismart\Project\Freelance\fisioactiv\fisioactiv
-git remote remove origin 2>$null
-git remote add origin https://github.com/TU_USUARIO/fisioactiv.git
-git push -u origin master
-```
-
-(Sustituye `TU_USUARIO` por tu usuario de GitHub.)
-
-### Paso B — Conectar Render
-
-1. Entra a [https://dashboard.render.com](https://dashboard.render.com) y crea cuenta (puedes usar GitHub).
-2. **New + → Blueprint**  
-   - O **New + → Static Site**
-3. Autoriza y elige el repo `fisioactiv`.
-4. Si usas Blueprint, Render leerá `render.yaml` solo.
-5. Si lo creas a mano como Static Site:
+1. Entra a [https://dashboard.render.com](https://dashboard.render.com) e inicia sesión (con GitHub).
+2. Autoriza el acceso a tus repos si te lo pide.
+3. Pulsa **New +** → **Static Site**.
+4. Elige el repositorio **fernandozavaletahenriquez/fisioactiv**.
+5. Completa:
 
 | Campo | Valor |
 |--------|--------|
 | Name | `fisioactiv` |
+| Branch | `master` |
 | Build Command | `npm ci && npm run build:web` |
 | Publish Directory | `www` |
-| Node Version | `22` |
+| Auto-Deploy | **Yes** (On Commit) |
 
-6. En **Redirects/Rewrites** agrega (SPA Angular):
+6. En **Redirects/Rewrites** → Add:
 
 | Source | Destination | Action |
 |--------|-------------|--------|
-| `/*` | `/index.html` | Rewrite |
+| `/*` | `/index.html` | **Rewrite** |
 
-7. **Create Static Site** / Deploy.
+7. Pulsa **Create Static Site**.
 
-Al terminar tendrás algo como:
+Render construirá el proyecto (~2–5 min). Al terminar verás una URL tipo:
 
 **https://fisioactiv.onrender.com**
 
-Ese enlace es HTTPS: la cámara funciona. Comparte el link con tus trabajadores (Chrome).
+### Cómo funciona lo “dinámico”
 
-> Nota: en el plan gratuito, Render puede “dormir” el sitio tras inactividad; el primer acceso tarda ~30–60 s en despertar.
+- Haces cambios en el código.
+- `git push origin master`
+- Render detecta el push, vuelve a hacer build y actualiza el sitio solo.
+
+No hace falta volver a configurar nada.
+
+### Alternativa: Blueprint
+
+**New + → Blueprint** → selecciona el mismo repo. Usará el archivo `render.yaml` (ya incluye `branch: master` y auto-deploy).
 
 ---
 
@@ -76,5 +69,3 @@ npx cap add android
 npx cap sync android
 npx cap open android
 ```
-
-Luego en Android Studio: Build APK.
