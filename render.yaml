@@ -1,10 +1,13 @@
 # Render Blueprint — Static Site FisioActiv
+# Cada push a master dispara un nuevo deploy automáticamente.
 # https://render.com/docs/blueprint-spec
 
 services:
   - type: web
     name: fisioactiv
     runtime: static
+    branch: master
+    autoDeployTrigger: commit
     buildCommand: npm ci && npm run build:web
     staticPublishPath: www
     routes:
