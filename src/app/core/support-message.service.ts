@@ -6,13 +6,14 @@ export interface SupportSubmitResult {
   message?: string;
 }
 
+/** Columnas reales en Supabase: telephone (text), messaje (text), ip_public (text). */
 @Injectable({ providedIn: 'root' })
 export class SupportMessageService {
   async submit(telephoneRaw: string, message: string): Promise<SupportSubmitResult> {
-    const telephoneDigits = telephoneRaw.replace(/\D/g, '');
-    const mensaje = message.trim();
+    const telephone = telephoneRaw.replace(/\D/g, '');
+    const messaje = message.trim();
 
-    if (!telephoneDigits || !mensaje) {
+    if (!telephone || !messaje) {
       return { ok: false, message: 'Completa teléfono y mensaje.' };
     }
 
@@ -21,7 +22,7 @@ export class SupportMessageService {
     if (!base || !key || key.startsWith('PEGA_AQUI')) {
       return {
         ok: false,
-        message: 'Falta la publishable key de Supabase en secrets.ts.',
+        message: 'Falta la publishable key de Supabase.',
       };
     }
 
@@ -44,9 +45,9 @@ export class SupportMessageService {
         };
       }
 
-      const status = await this.restInsertMessage(base, key, {
-        telephone: Number(telephoneDigits),
-        mensaje,
+      const { status, errorMessage } = await this.restInsertMessage(base, key, {
+        telephone,
+        messaje,
         ip_public: ipPublic,
       });
 
@@ -63,7 +64,9 @@ export class SupportMessageService {
 
       return {
         ok: false,
-        message: `No se pudo guardar el mensaje (HTTP ${status}).`,
+        message: errorMessage
+          ? `No se pudo guardar el mensaje (${errorMessage}).`
+          : `No se pudo guardar el mensaje (HTTP ${status}).`,
       };
     } catch (err) {
       const aborted =
@@ -108,8 +111,8 @@ export class SupportMessageService {
   private async restInsertMessage(
     base: string,
     key: string,
-    body: { telephone: number; mensaje: string; ip_public: string },
-  ): Promise<number> {
+    body: { telephone: string; messaje: string; ip_public: string },
+  ): Promise<{ status: number; errorMessage?: string }> {
     const res = await fetch(`${base}/rest/v1/messages`, {
       method: 'POST',
       headers: {
@@ -117,21 +120,24 @@ export class SupportMessageService {
         Authorization: `Bearer ${key}`,
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        // Sin cuerpo de respuesta → el fetch termina al instante tras el 201.
         Prefer: 'return=minimal',
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(8_000),
     });
 
-    // Consumir/cancelar body por si el servidor manda algo.
+    let errorMessage: string | undefined;
     try {
-      await res.text();
+      const text = await res.text();
+      if (text && !res.ok) {
+        const parsed = JSON.parse(text) as { message?: string; code?: string };
+        errorMessage = parsed.message ?? text;
+      }
     } catch {
       /* ignore */
     }
 
-    return res.status;
+    return { status: res.status, errorMessage };
   }
 
   private async fetchPublicIp(): Promise<string> {
