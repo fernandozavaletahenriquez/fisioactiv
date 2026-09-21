@@ -1,0 +1,39 @@
+appId: com.fisioactiv.app
+productName: FisioActiv
+copyright: Copyright © FisioActiv
+
+directories:
+  output: release
+
+files:
+  - electron/main.cjs
+  - electron/package.json
+  - package.json
+
+extraResources:
+  - from: www
+    to: www
+
+asar: true
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: FisioActiv
+  uninstallDisplayName: FisioActiv
+
+portable:
+  artifactName: "${productName}-${version}-portable.${ext}"

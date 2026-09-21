@@ -1,0 +1,9 @@
+{
+  "name": "fisioactiv-desktop",
+  "productName": "FisioActiv",
+  "version": "1.0.0",
+  "description": "FisioActiv — terapia física interactiva",
+  "author": "FisioActiv",
+  "main": "main.cjs",
+  "private": true
+}

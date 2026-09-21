@@ -1,0 +1,144 @@
+<div class="game-page" [class.is-playing]="hud.isRunning" [class.is-ready]="cameraReady">
+  <div class="top-bar">
+    <a class="fa-icon-btn" routerLink="/home" aria-label="Volver">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </a>
+    <div class="top-brand">
+      <span class="nav-dot"></span>
+      <span>FisioActiv</span>
+    </div>
+    <button type="button" class="fa-icon-btn" (click)="toggleSettings()" aria-label="Ajustes">
+      <ion-icon name="options-outline"></ion-icon>
+    </button>
+  </div>
+
+  @if (cameraErrorMessage) {
+    <div class="toast toast-error">{{ cameraErrorMessage }}</div>
+  } @else if (cameraReady && !poseDetected && !hud.isFinished) {
+    <div class="toast toast-warn">Aléjate 1–2 m y muestra el cuerpo completo</div>
+  } @else if (statusMessage && !hud.isRunning) {
+    <div class="toast toast-info">{{ statusMessage }}</div>
+  }
+
+  <div class="stage-full">
+    <app-shadow-exergame
+      #exergame
+      [settings]="settings"
+      (hudChange)="onHudChange($event)"
+      (cameraError)="onCameraError($event)"
+      (ready)="onExergameReady()"
+      (statusChange)="onStatusChange($event)"
+      (poseDetected)="onPoseDetected($event)"
+    ></app-shadow-exergame>
+
+    @if (topAttempts.length > 0) {
+      <div class="history-float hud-text">
+        <div class="history-title">Mejores</div>
+        @for (attempt of topAttempts; track attempt.at; let i = $index) {
+          <div class="history-line">
+            <span class="rank">{{ rankLabel(i) }}</span>
+            <strong>{{ attempt.score }}</strong>
+            <span class="meta">{{ attempt.poppedCount }}g</span>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="hud-float hud-text">
+      <div class="hud-line">
+        <span>Puntos</span>
+        <strong>{{ hud.score }}</strong>
+      </div>
+      <div class="hud-line">
+        <span>Globos</span>
+        <strong>{{ hud.poppedCount }}</strong>
+      </div>
+      <div class="hud-line hud-time">
+        <span>Tiempo</span>
+        <strong>{{ hud.timeLeftSeconds }}s</strong>
+      </div>
+    </div>
+
+    @if (hud.isFinished) {
+      <div class="finish-overlay">
+        <div class="overlay-card fa-panel">
+          <p class="eyebrow">Sesión completada</p>
+          <h2>{{ hud.score }} pts</h2>
+          <p class="overlay-lead">{{ hud.poppedCount }} globos reventados</p>
+          <button type="button" class="fa-cta" (click)="restartSession()">Jugar de nuevo</button>
+        </div>
+      </div>
+    }
+
+    @if (!hud.isRunning && !hud.isFinished) {
+      <div class="start-overlay">
+        <div class="overlay-card fa-panel">
+          <p class="eyebrow">Exergame</p>
+          <h2>Listo para moverte</h2>
+          <p class="overlay-lead">
+            Activa la cámara y alcanza los globos con las manos.
+          </p>
+          <button
+            type="button"
+            class="fa-cta"
+            [disabled]="cameraLoading"
+            (click)="play()"
+          >
+            @if (cameraLoading) {
+              Activando cámara…
+            } @else if (!cameraReady) {
+              Activar cámara y jugar
+            } @else {
+              Empezar sesión
+            }
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <ion-modal [isOpen]="settingsOpen" (didDismiss)="settingsOpen = false" class="fa-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>Ajustes</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="settingsOpen = false">Listo</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-list lines="full">
+          <ion-item>
+            <ion-select
+              label="Visualización"
+              labelPlacement="stacked"
+              interface="popover"
+              [(ngModel)]="settings.displayMode"
+            >
+              <ion-select-option value="video">Persona en video (recomendado)</ion-select-option>
+              <ion-select-option value="shadow">Solo sombra</ion-select-option>
+              <ion-select-option value="skeleton">Esqueleto</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">
+              Facilidad de toque ({{ settings.hitboxScale | number: '1.1-1' }}×)
+            </ion-label>
+            <ion-range [(ngModel)]="settings.hitboxScale" min="1" max="2.5" step="0.1" pin="true">
+              <ion-label slot="start">1×</ion-label>
+              <ion-label slot="end">2.5×</ion-label>
+            </ion-range>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Velocidad de caída</ion-label>
+            <ion-range [(ngModel)]="settings.balloonSpeed" min="0.4" max="2" step="0.1" pin="true">
+              <ion-label slot="start">Lento</ion-label>
+              <ion-label slot="end">Rápido</ion-label>
+            </ion-range>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</div>
