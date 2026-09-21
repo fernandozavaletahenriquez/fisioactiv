@@ -19,15 +19,20 @@ export interface ExergameSettings {
   displayMode: DisplayMode;
   hitboxScale: number;
   balloonSpeed: number;
+  /** Duración de la sesión en segundos. */
+  sessionSeconds: number;
 }
+
+export const SESSION_DURATION_OPTIONS = [60, 90, 120, 150, 180] as const;
 
 export const DEFAULT_EXERGAME_SETTINGS: ExergameSettings = {
   displayMode: 'video',
   hitboxScale: 2.0,
   balloonSpeed: 0.85,
+  sessionSeconds: 60,
 };
 
-/** Estado del HUD de la sesión (60 s). */
+/** Estado del HUD de la sesión. */
 export interface GameHudState {
   score: number;
   poppedCount: number;

@@ -1,10 +1,14 @@
 import { Component, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { ToastController, ViewDidEnter, ViewWillLeave } from '@ionic/angular';
+import { AuthService } from '../../../core/auth/auth.service';
+import { UiChromeService } from '../../../core/ui-chrome.service';
 import { ShadowExergameComponent } from '../../components/shadow-exergame/shadow-exergame.component';
 import {
   DEFAULT_EXERGAME_SETTINGS,
   ExergameSettings,
   GameHudState,
+  SESSION_DURATION_OPTIONS,
 } from '../../game/types';
 import {
   ScoreAttempt,
@@ -20,11 +24,13 @@ import {
 export class GamePage implements ViewDidEnter, ViewWillLeave {
   @ViewChild('exergame') exergame?: ShadowExergameComponent;
 
+  readonly durationOptions = SESSION_DURATION_OPTIONS;
+
   settings: ExergameSettings = { ...DEFAULT_EXERGAME_SETTINGS };
   hud: GameHudState = {
     score: 0,
     poppedCount: 0,
-    timeLeftSeconds: 60,
+    timeLeftSeconds: DEFAULT_EXERGAME_SETTINGS.sessionSeconds,
     isRunning: false,
     isFinished: false,
   };
@@ -43,6 +49,9 @@ export class GamePage implements ViewDidEnter, ViewWillLeave {
   constructor(
     private readonly toastCtrl: ToastController,
     private readonly scoreHistory: ScoreHistoryService,
+    private readonly uiChrome: UiChromeService,
+    private readonly auth: AuthService,
+    private readonly router: Router,
   ) {
     this.topAttempts = this.scoreHistory.getTopAttempts();
   }
@@ -50,6 +59,7 @@ export class GamePage implements ViewDidEnter, ViewWillLeave {
   ionViewDidEnter(): void {
     this.exergame?.onPageEnter();
     this.topAttempts = this.scoreHistory.getTopAttempts();
+    this.uiChrome.setHideWhatsApp(this.hud.isRunning);
   }
 
   ionViewWillLeave(): void {
@@ -57,6 +67,7 @@ export class GamePage implements ViewDidEnter, ViewWillLeave {
     this.cameraReady = false;
     this.poseDetected = false;
     this.statusMessage = '';
+    this.uiChrome.setHideWhatsApp(false);
   }
 
   onHudChange(state: GameHudState): void {
@@ -65,7 +76,6 @@ export class GamePage implements ViewDidEnter, ViewWillLeave {
       this.finishRecorded = false;
     }
 
-    // Al terminar la sesión, guardar intento una sola vez.
     if (state.isFinished && this.sessionWasRunning && !this.finishRecorded) {
       this.finishRecorded = true;
       this.sessionWasRunning = false;
@@ -73,6 +83,7 @@ export class GamePage implements ViewDidEnter, ViewWillLeave {
     }
 
     this.hud = state;
+    this.uiChrome.setHideWhatsApp(state.isRunning);
   }
 
   onCameraError(message: string): void {
@@ -130,6 +141,12 @@ export class GamePage implements ViewDidEnter, ViewWillLeave {
 
   toggleSettings(): void {
     this.settingsOpen = !this.settingsOpen;
+  }
+
+  logout(): void {
+    this.settingsOpen = false;
+    this.auth.logout();
+    void this.router.navigateByUrl('/login');
   }
 
   rankLabel(index: number): string {

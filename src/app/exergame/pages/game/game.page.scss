@@ -321,3 +321,29 @@
     padding: 22px 18px 20px;
   }
 }
+
+.settings-logout {
+  margin-top: 28px;
+  padding: 0 4px 12px;
+}
+
+.logout-btn {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(153, 27, 27, 0.28);
+  border-radius: 14px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-family: var(--fa-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #fee2e2;
+}

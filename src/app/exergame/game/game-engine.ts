@@ -4,7 +4,7 @@ import { PopParticleSystem } from './pop-particles';
 import { PopSynth } from './pop-synth';
 import { ExergameSettings, GameHudState, PoseLandmark } from './types';
 
-const SESSION_SECONDS = 60;
+const DEFAULT_SESSION_SECONDS = 60;
 const SPAWN_INTERVAL_MS = 1200;
 
 export class ExergameEngine {
@@ -15,10 +15,11 @@ export class ExergameEngine {
   private spawnAccumulator = 0;
   private elapsedSessionMs = 0;
   private lastTimestamp = 0;
+  private sessionSeconds = DEFAULT_SESSION_SECONDS;
   private hud: GameHudState = {
     score: 0,
     poppedCount: 0,
-    timeLeftSeconds: SESSION_SECONDS,
+    timeLeftSeconds: DEFAULT_SESSION_SECONDS,
     isRunning: false,
     isFinished: false,
   };
@@ -27,7 +28,8 @@ export class ExergameEngine {
     return { ...this.hud };
   }
 
-  startSession(): void {
+  startSession(sessionSeconds = DEFAULT_SESSION_SECONDS): void {
+    this.sessionSeconds = sessionSeconds > 0 ? sessionSeconds : DEFAULT_SESSION_SECONDS;
     this.reset();
     this.hud.isRunning = true;
     this.hud.isFinished = false;
@@ -44,7 +46,7 @@ export class ExergameEngine {
     this.hud = {
       score: 0,
       poppedCount: 0,
-      timeLeftSeconds: SESSION_SECONDS,
+      timeLeftSeconds: this.sessionSeconds,
       isRunning: false,
       isFinished: false,
     };
@@ -74,7 +76,7 @@ export class ExergameEngine {
     this.lastTimestamp = timestamp;
 
     this.elapsedSessionMs += deltaMs;
-    const timeLeft = Math.max(0, SESSION_SECONDS - Math.floor(this.elapsedSessionMs / 1000));
+    const timeLeft = Math.max(0, this.sessionSeconds - Math.floor(this.elapsedSessionMs / 1000));
     this.hud.timeLeftSeconds = timeLeft;
     if (timeLeft <= 0) {
       this.hud.isRunning = false;

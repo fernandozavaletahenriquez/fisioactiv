@@ -1,0 +1,135 @@
+.wa-root {
+  position: fixed;
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.wa-root > * {
+  pointer-events: auto;
+}
+
+.wa-fab {
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #25d366 0%, #128c7e 100%);
+  box-shadow: 0 14px 28px rgba(18, 140, 126, 0.35);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.wa-fab:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+.wa-panel {
+  width: min(320px, calc(100vw - 32px));
+  padding: 16px;
+}
+
+.wa-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-family: var(--fa-font-display);
+  color: var(--fa-teal-deep);
+}
+
+.wa-close {
+  border: 0;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--fa-muted);
+}
+
+.wa-hint {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: var(--fa-muted);
+  line-height: 1.4;
+}
+
+.wa-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fa-teal-deep);
+}
+
+.wa-field input,
+.wa-field textarea {
+  border-radius: 12px;
+  border: 1px solid rgba(8, 72, 66, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 12px;
+  font-family: var(--fa-font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--fa-ink);
+  resize: vertical;
+}
+
+.wa-error {
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid rgba(153, 27, 27, 0.2);
+  color: #991b1b;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.wa-send {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 4px;
+}
+
+.wa-send::after {
+  content: none;
+}
+
+.wa-success {
+  width: min(300px, calc(100vw - 32px));
+  padding: 14px 16px;
+}
+
+.wa-success p {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--fa-ink);
+  font-weight: 600;
+}
+
+.wa-ok {
+  border: 0;
+  background: transparent;
+  color: var(--fa-teal);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--fa-font-display);
+}

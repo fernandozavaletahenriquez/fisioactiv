@@ -115,7 +115,7 @@ export class ShadowExergameComponent implements OnDestroy {
   }
 
   startSession(): void {
-    this.engine.startSession();
+    this.engine.startSession(Number(this.settings.sessionSeconds) || 60);
     this.emitHud();
   }
 

@@ -1,0 +1,55 @@
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login">
+    <div class="login-media" aria-hidden="true">
+      <img src="assets/game/hero-fisioactiv.png" alt="" class="login-photo" />
+      <div class="login-scrim"></div>
+    </div>
+
+    <div class="login-layer">
+      <header class="login-nav">
+        <span class="nav-dot" aria-hidden="true"></span>
+        <span class="nav-label">FisioActiv</span>
+      </header>
+
+      <section class="login-card">
+        <p class="brand">FisioActiv</p>
+        <h1>Bienvenido</h1>
+        <p class="lead">Ingresa con tu usuario para comenzar la sesión de terapia.</p>
+
+        <form class="login-form" (ngSubmit)="submit()">
+          <label class="field">
+            <span>Usuario</span>
+            <input
+              type="text"
+              name="username"
+              autocomplete="username"
+              [(ngModel)]="username"
+              [disabled]="loading"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>Contraseña</span>
+            <input
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              [(ngModel)]="password"
+              [disabled]="loading"
+              required
+            />
+          </label>
+
+          @if (errorMessage) {
+            <p class="form-error">{{ errorMessage }}</p>
+          }
+
+          <button type="submit" class="fa-cta login-cta" [disabled]="loading">
+            {{ loading ? 'Validando…' : 'Entrar' }}
+          </button>
+        </form>
+      </section>
+    </div>
+  </div>
+</ion-content>

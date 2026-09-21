@@ -6,6 +6,7 @@
 .tmp
 *.tmp
 *.tmp.*
+/src/environments/secrets.ts
 UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
 

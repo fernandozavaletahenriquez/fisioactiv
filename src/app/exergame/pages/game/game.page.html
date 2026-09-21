@@ -137,7 +137,23 @@
               <ion-label slot="end">Rápido</ion-label>
             </ion-range>
           </ion-item>
+          <ion-item>
+            <ion-select
+              label="Duración de la sesión"
+              labelPlacement="stacked"
+              interface="popover"
+              [(ngModel)]="settings.sessionSeconds"
+            >
+              @for (seconds of durationOptions; track seconds) {
+                <ion-select-option [value]="seconds">{{ seconds }} segundos</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
         </ion-list>
+
+        <div class="settings-logout">
+          <button type="button" class="logout-btn" (click)="logout()">Cerrar sesión</button>
+        </div>
       </ion-content>
     </ng-template>
   </ion-modal>
