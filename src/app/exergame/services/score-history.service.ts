@@ -7,7 +7,7 @@ export interface ScoreAttempt {
   at: number;
 }
 
-const STORAGE_KEY = 'fisioactiv.scoreHistory.v1';
+const STORAGE_PREFIX = 'fisioactiv.scoreHistory.v1';
 const MAX_ATTEMPTS = 3;
 
 /**
@@ -15,52 +15,52 @@ const MAX_ATTEMPTS = 3;
  */
 @Injectable({ providedIn: 'root' })
 export class ScoreHistoryService {
-  /** Intento más reciente (aunque no esté en el top) para detectar fin de partida. */
   private lastRecordedKey: string | null = null;
 
-  getTopAttempts(): ScoreAttempt[] {
-    return this.read()
+  getTopAttempts(gameId = 'balloons'): ScoreAttempt[] {
+    return this.read(gameId)
       .slice()
       .sort((a, b) => b.score - a.score || b.at - a.at)
       .slice(0, MAX_ATTEMPTS);
   }
 
-  /**
-   * Registra un intento terminado. Mantiene como máximo 3, priorizando mayor puntaje.
-   */
-  recordAttempt(score: number, poppedCount: number): ScoreAttempt[] {
+  recordAttempt(score: number, poppedCount: number, gameId = 'balloons'): ScoreAttempt[] {
     const attempt: ScoreAttempt = {
       score,
       poppedCount,
       at: Date.now(),
     };
 
-    const key = `${attempt.at}:${attempt.score}`;
+    const key = `${gameId}:${attempt.at}:${attempt.score}`;
     if (this.lastRecordedKey === key) {
-      return this.getTopAttempts();
+      return this.getTopAttempts(gameId);
     }
     this.lastRecordedKey = key;
 
-    const next = [...this.read(), attempt]
+    const next = [...this.read(gameId), attempt]
       .sort((a, b) => b.score - a.score || b.at - a.at)
       .slice(0, MAX_ATTEMPTS);
 
-    this.write(next);
+    this.write(gameId, next);
     return next;
   }
 
-  clear(): void {
+  clear(gameId = 'balloons'): void {
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(this.storageKey(gameId));
     } catch {
       /* ignore */
     }
     this.lastRecordedKey = null;
   }
 
-  private read(): ScoreAttempt[] {
+  private storageKey(gameId: string): string {
+    return gameId === 'balloons' ? STORAGE_PREFIX : `${STORAGE_PREFIX}.${gameId}`;
+  }
+
+  private read(gameId: string): ScoreAttempt[] {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(this.storageKey(gameId));
       if (!raw) {
         return [];
       }
@@ -80,9 +80,9 @@ export class ScoreHistoryService {
     }
   }
 
-  private write(attempts: ScoreAttempt[]): void {
+  private write(gameId: string, attempts: ScoreAttempt[]): void {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
+      localStorage.setItem(this.storageKey(gameId), JSON.stringify(attempts));
     } catch {
       /* ignore quota / private mode */
     }

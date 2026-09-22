@@ -1,27 +1,54 @@
 <ion-content [fullscreen]="true" class="home-content">
-  <div class="home">
-    <div class="home-media" aria-hidden="true">
-      <img
-        src="assets/game/hero-fisioactiv.png"
-        alt=""
-        class="home-photo"
-      />
-      <div class="home-scrim"></div>
+  <div class="game-menu">
+    <div class="menu-atmosphere" aria-hidden="true">
+      <div class="wash wash-a"></div>
+      <div class="wash wash-b"></div>
+      <div class="soft-pattern"></div>
     </div>
 
-    <div class="home-content-layer">
-      <header class="home-nav">
-        <span class="nav-dot" aria-hidden="true"></span>
-        <span class="nav-label">FisioActiv</span>
+    <div class="menu-layer">
+      <header class="menu-nav">
+        <div class="brand-lockup">
+          <span class="nav-dot" aria-hidden="true"></span>
+          <span class="nav-label">FisioActiv</span>
+        </div>
+        <button type="button" class="logout-link" (click)="logout()">Salir</button>
       </header>
 
-      <section class="home-hero">
+      <section class="menu-hero">
         <p class="brand">FisioActiv</p>
-        <h1>Mueve el cuerpo.<br />Gana el juego.</h1>
+        <h1>Elige tu juego</h1>
         <p class="lead">
-          Terapia física con cámara: alcanza y revienta globos con tus manos en tiempo real.
+          Hola {{ username }}. Entra a una sesión y muévete frente a la cámara.
         </p>
-        <a routerLink="/game" class="cta fa-cta">Comenzar sesión</a>
+      </section>
+
+      <!-- Distribución mental 4×4 (sin dibujar líneas): 1 juego = 1 casilla, L→R -->
+      <section class="game-grid" aria-label="Catálogo de juegos">
+        @for (game of games; track trackGame($index, game); let i = $index) {
+          <button
+            type="button"
+            class="game-tile"
+            [style.--tile-accent]="game.accent"
+            [style.--tile-accent-soft]="game.accentSoft"
+            [style.animation-delay]="i * 70 + 'ms'"
+            (click)="openGame(game)"
+          >
+            <span class="tile-tag">{{ game.tag }}</span>
+            <span class="tile-visual" aria-hidden="true">
+              @if (game.id === 'balloons') {
+                <span class="motif motif-balloons"><i></i><i></i><i></i></span>
+              } @else {
+                <span class="motif motif-dodge"><i></i><i></i></span>
+              }
+            </span>
+            <span class="tile-copy">
+              <strong>{{ game.title }}</strong>
+              <span>{{ game.subtitle }}</span>
+            </span>
+            <span class="tile-cta">Jugar</span>
+          </button>
+        }
       </section>
     </div>
   </div>

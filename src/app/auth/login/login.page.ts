@@ -9,8 +9,9 @@ import { AuthService } from '../../core/auth/auth.service';
   standalone: false,
 })
 export class LoginPage {
-  username = '';
-  password = '';
+  /** Prefill para demos / pruebas (cualquiera puede entrar). */
+  username = 'demo';
+  password = 'demo123';
   errorMessage = '';
   loading = false;
 

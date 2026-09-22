@@ -18,6 +18,11 @@ const routes: Routes = [
     loadChildren: () => import('./exergame/exergame.module').then((m) => m.ExergamePageModule),
   },
   {
+    path: 'dodge',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./dodge/dodge.module').then((m) => m.DodgePageModule),
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',

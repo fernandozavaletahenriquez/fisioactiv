@@ -1,11 +1,11 @@
-<div class="game-page" [class.is-playing]="hud.isRunning" [class.is-ready]="cameraReady">
+<div class="dodge-page" [class.is-playing]="hud.isRunning" [class.is-ready]="cameraReady">
   <div class="top-bar">
-    <a class="fa-icon-btn" routerLink="/home" aria-label="Volver al menú">
+    <a class="fa-icon-btn" routerLink="/home" aria-label="Volver">
       <ion-icon name="arrow-back-outline"></ion-icon>
     </a>
     <div class="top-brand">
       <span class="nav-dot"></span>
-      <span>FisioActiv</span>
+      <span>Esquiva Zonas</span>
     </div>
     <button type="button" class="fa-icon-btn" (click)="toggleSettings()" aria-label="Ajustes">
       <ion-icon name="options-outline"></ion-icon>
@@ -16,20 +16,22 @@
     <div class="toast toast-error">{{ cameraErrorMessage }}</div>
   } @else if (cameraReady && !poseDetected && !hud.isFinished) {
     <div class="toast toast-warn">Aléjate 1–2 m y muestra el cuerpo completo</div>
+  } @else if (hud.isRunning && hud.inDangerZone) {
+    <div class="toast toast-error">¡Sal de la zona bloqueada!</div>
   } @else if (statusMessage && !hud.isRunning) {
     <div class="toast toast-info">{{ statusMessage }}</div>
   }
 
   <div class="stage-full">
-    <app-shadow-exergame
+    <app-dodge-exergame
       #exergame
-      [settings]="settings"
+      [sessionSeconds]="sessionSeconds"
       (hudChange)="onHudChange($event)"
       (cameraError)="onCameraError($event)"
       (ready)="onExergameReady()"
       (statusChange)="onStatusChange($event)"
       (poseDetected)="onPoseDetected($event)"
-    ></app-shadow-exergame>
+    ></app-dodge-exergame>
 
     @if (topAttempts.length > 0) {
       <div class="history-float hud-text">
@@ -38,7 +40,6 @@
           <div class="history-line">
             <span class="rank">{{ rankLabel(i) }}</span>
             <strong>{{ attempt.score }}</strong>
-            <span class="meta">{{ attempt.poppedCount }}g</span>
           </div>
         }
       </div>
@@ -46,16 +47,16 @@
 
     <div class="hud-float hud-text">
       <div class="hud-line">
+        <span>Nivel</span>
+        <strong>{{ hud.level }}</strong>
+      </div>
+      <div class="hud-line">
         <span>Puntos</span>
         <strong>{{ hud.score }}</strong>
       </div>
-      <div class="hud-line">
-        <span>Globos</span>
-        <strong>{{ hud.poppedCount }}</strong>
-      </div>
       <div class="hud-line hud-time">
         <span>Tiempo</span>
-        <strong>{{ hud.timeLeftSeconds }}s</strong>
+        <strong>{{ formatTime(hud.timeLeftSeconds) }}</strong>
       </div>
     </div>
 
@@ -64,7 +65,7 @@
         <div class="overlay-card fa-panel">
           <p class="eyebrow">Sesión completada</p>
           <h2>{{ hud.score }} pts</h2>
-          <p class="overlay-lead">{{ hud.poppedCount }} globos reventados</p>
+          <p class="overlay-lead">Bien hecho. ¿Otra ronda?</p>
           <button type="button" class="fa-cta" (click)="restartSession()">Jugar de nuevo</button>
         </div>
       </div>
@@ -73,10 +74,10 @@
     @if (!hud.isRunning && !hud.isFinished) {
       <div class="start-overlay">
         <div class="overlay-card fa-panel">
-          <p class="eyebrow">Exergame</p>
-          <h2>Listo para moverte</h2>
+          <p class="eyebrow">Esquiva Zonas</p>
+          <h2>Esquiva la figura grande</h2>
           <p class="overlay-lead">
-            Activa la cámara y alcanza los globos con las manos.
+            Una zona geométrica grande ocupa parte de la pantalla (3 s). Agáchate, salta o muévete: cuando llega a 0 cambia de forma y posición.
           </p>
           <button
             type="button"
@@ -111,38 +112,10 @@
         <ion-list lines="full">
           <ion-item>
             <ion-select
-              label="Visualización"
-              labelPlacement="stacked"
-              interface="popover"
-              [(ngModel)]="settings.displayMode"
-            >
-              <ion-select-option value="video">Persona en video (recomendado)</ion-select-option>
-              <ion-select-option value="shadow">Solo sombra</ion-select-option>
-              <ion-select-option value="skeleton">Esqueleto</ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">
-              Facilidad de toque ({{ settings.hitboxScale | number: '1.1-1' }}×)
-            </ion-label>
-            <ion-range [(ngModel)]="settings.hitboxScale" min="1" max="2.5" step="0.1" pin="true">
-              <ion-label slot="start">1×</ion-label>
-              <ion-label slot="end">2.5×</ion-label>
-            </ion-range>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Velocidad de caída</ion-label>
-            <ion-range [(ngModel)]="settings.balloonSpeed" min="0.4" max="2" step="0.1" pin="true">
-              <ion-label slot="start">Lento</ion-label>
-              <ion-label slot="end">Rápido</ion-label>
-            </ion-range>
-          </ion-item>
-          <ion-item>
-            <ion-select
               label="Duración de la sesión"
               labelPlacement="stacked"
               interface="popover"
-              [(ngModel)]="settings.sessionSeconds"
+              [(ngModel)]="sessionSeconds"
             >
               @for (seconds of durationOptions; track seconds) {
                 <ion-select-option [value]="seconds">{{ seconds }} segundos</ion-select-option>
@@ -150,7 +123,6 @@
             </ion-select>
           </ion-item>
         </ion-list>
-
         <div class="settings-logout">
           <button type="button" class="logout-btn" (click)="logout()">Cerrar sesión</button>
         </div>
